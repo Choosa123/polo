@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useGraveyard, Grave } from '@/contexts/GraveyardContext';
-import { CheckSquare, Grid3x3, Search, Trash2 } from 'lucide-react';
+import { CheckSquare, Grid3x3, Search, Trash2, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -15,7 +16,25 @@ import {
 } from '@/components/ui/tooltip';
 
 export default function GravesPage() {
+  const { isAuthenticated, user } = useAuth();
   const { graveyards, plots, graves, updateGrave, bulkUpdateGraves } = useGraveyard();
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 flex items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl text-center">
+          <div className="rounded-full bg-red-100 p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <Lock className="h-8 w-8 text-red-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+          <p className="text-slate-600">You need to be logged in to view graves.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const canModify = ['admin', 'staff'].includes(user?.role || '');
+
   const [filterGraveyardId, setFilterGraveyardId] = useState<string>('all');
   const [filterPlotId, setFilterPlotId] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -113,14 +132,16 @@ export default function GravesPage() {
             <h1 className="text-4xl font-bold text-slate-900 mb-2">Graves</h1>
             <p className="text-slate-600">Manage grave reservations and availability</p>
           </div>
-          <Button
-            onClick={toggleSelectionMode}
-            variant={selectionMode ? 'default' : 'outline'}
-            className={selectionMode ? 'bg-gradient-to-r from-cyan-500 to-cyan-600' : ''}
-          >
-            <CheckSquare className="mr-2 h-4 w-4" />
-            {selectionMode ? 'Exit Selection' : 'Bulk Select'}
-          </Button>
+          {canModify && (
+            <Button
+              onClick={toggleSelectionMode}
+              variant={selectionMode ? 'default' : 'outline'}
+              className={selectionMode ? 'bg-gradient-to-r from-cyan-500 to-cyan-600' : ''}
+            >
+              <CheckSquare className="mr-2 h-4 w-4" />
+              {selectionMode ? 'Exit Selection' : 'Bulk Select'}
+            </Button>
+          )}
         </div>
 
         <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">

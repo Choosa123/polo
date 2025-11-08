@@ -1,15 +1,31 @@
 "use client";
 
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useGraveyard, Plot } from '@/contexts/GraveyardContext';
-import { Plus, Search, Grid3x3, Edit, Trash2, MapPin, Boxes } from 'lucide-react';
+import { Plus, Search, Grid3x3, Edit, Trash2, MapPin, Boxes, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PlotForm from '@/components/PlotForm';
 
 export default function PlotsPage() {
+  const { isAuthenticated, user } = useAuth();
   const { graveyards, plots, graves, addPlot, updatePlot, deletePlot } = useGraveyard();
+
+  if (!isAuthenticated || !['admin', 'staff'].includes(user?.role || '')) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 flex items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl text-center">
+          <div className="rounded-full bg-red-100 p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <Lock className="h-8 w-8 text-red-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+          <p className="text-slate-600">You don't have permission to access this module.</p>
+        </div>
+      </div>
+    );
+  }
   const [searchQuery, setSearchQuery] = useState('');
   const [filterGraveyardId, setFilterGraveyardId] = useState<string>('all');
   const [showForm, setShowForm] = useState(false);

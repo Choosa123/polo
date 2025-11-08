@@ -2,7 +2,10 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { GraveyardProvider } from '@/contexts/GraveyardContext';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { BurialRecordProvider } from '@/contexts/BurialRecordContext';
 import Sidebar from '@/components/Sidebar';
+import LayoutContent from '@/components/LayoutContent';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,14 +22,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <GraveyardProvider>
-          <div className="flex h-screen overflow-hidden bg-slate-50">
-            <Sidebar />
-            <main className="flex-1 overflow-y-auto">
-              {children}
-            </main>
-          </div>
-        </GraveyardProvider>
+        <AuthProvider>
+          <GraveyardProvider>
+            <BurialRecordProvider>
+              <LayoutContent>
+                {children}
+              </LayoutContent>
+            </BurialRecordProvider>
+          </GraveyardProvider>
+        </AuthProvider>
       </body>
     </html>
   );

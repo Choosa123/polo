@@ -1,11 +1,26 @@
 "use client";
 
+import { useAuth } from '@/contexts/AuthContext';
 import { useGraveyard } from '@/contexts/GraveyardContext';
 import { Map, Grid3x3, Boxes, CheckCircle2, XCircle } from 'lucide-react';
 import { useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function Dashboard() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
   const { graveyards, plots, graves } = useGraveyard();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, router]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const stats = useMemo(() => {
     const availableGraves = graves.filter((g) => g.status === 'available').length;
